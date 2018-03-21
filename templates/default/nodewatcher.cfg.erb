@@ -1,3 +1,6 @@
 [nodewatcher]
 region = <%= node['cfncluster']['cfn_region'] %>
 scheduler = <%= node['cfncluster']['cfn_scheduler'] %>
+sqsqueue = <%= node['cfncluster']['cfn_sqs_queue'] %>
+table_name = <%= node['cfncluster']['cfn_ddb_table'] %>
+nokill = False
