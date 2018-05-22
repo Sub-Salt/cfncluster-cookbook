@@ -1,0 +1,7 @@
+language: bash
+
+script:
+    - bash cookbook_archive.sh
+
+addons:
+  artifacts: true

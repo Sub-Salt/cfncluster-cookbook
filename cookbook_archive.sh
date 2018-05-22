@@ -4,7 +4,7 @@ set -euo pipefail
 
 cookbook_name="cfncluster-cookbook-1.4.1"
 tarball_name="${cookbook_name}.tgz"
-deploy_dir="../cfncluster-cookbook-deploy/${cookbook_name}/"
+deploy_dir="./${cookbook_name}/"
 
 mkdir -p "${deploy_dir}"
 git archive HEAD | tar -x -C "${deploy_dir}"
@@ -34,3 +34,4 @@ rm -rf test
 
 cd ..
 tar czf "${tarball_name}" "${cookbook_name}/"
+rm -rf "${cookbook_name}/"
