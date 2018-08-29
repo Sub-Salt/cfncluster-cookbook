@@ -9,5 +9,17 @@ availability_zone_url="http://169.254.169.254/latest/meta-data/placement/availab
 instance_id=$(curl --retry 3 --retry-delay 0 --silent --fail ${instance_id_url})
 availability_zone=$(curl --retry 3 --retry-delay 0 --silent --fail ${availability_zone_url})
 
+echo "detected instance_id: ${instance_id}"
+
+# Check for information concerning which partition we want this instance to be put into
+if [ -f "/etc/corgi_target_partition.cfg" ]; then
+    target_partition=$(head -n 1 /etc/corgi_target_partition.cfg)
+    target_partition_field_str=',\"TargetPartition\":\"'${target_partition}'\"'
+    echo "detected target_partition ${target_partition}"
+else
+    echo "cannot detect target partition"
+    target_partition_field_str=''
+fi
+
 # Notify compute is ready
-aws --region ${cfn_region} sqs send-message --queue-url ${cfn_sqs_queue} --message-body '{"Type" : "Notification", "Message" : "{\"StatusCode\":\"Complete\",\"Description\":\"Succesfully launched '${instance_id}'\",\"Event\":\"cfncluster:COMPUTE_READY\",\"EC2InstanceId\":\"'${instance_id}'\",\"Slots\":\"'${cfn_instance_slots}'\"}"}'
+aws --region ${cfn_region} sqs send-message --queue-url ${cfn_sqs_queue} --message-body '{"Type" : "Notification", "Message" : "{\"StatusCode\":\"Complete\",\"Description\":\"Succesfully launched '${instance_id}'\",\"Event\":\"cfncluster:COMPUTE_READY\",\"EC2InstanceId\":\"'${instance_id}'\",\"Slots\":\"'${cfn_instance_slots}'\"'${target_partition_field_str}'}"}'
