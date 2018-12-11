@@ -30,8 +30,7 @@ else
     head_node_field_str=''
 fi
 
-# Notify compute is ready
-aws --region ${cfn_region} sqs send-message --queue-url ${cfn_sqs_queue} --message-body '{"Type" : "Notification", "Message" : "{\"StatusCode\":\"Complete\",\"Description\":\"Succesfully launched '${instance_id}'\",\"Event\":\"cfncluster:COMPUTE_READY\",\"EC2InstanceId\":\"'${instance_id}'\",\"Slots\":\"'${cfn_instance_slots}'\"'${target_partition_field_str}''${head_node_field_str'}"}'
+aws --region ${cfn_region} sqs send-message --queue-url ${cfn_sqs_queue} --message-body '{"Type" : "Notification", "Message" : "{\"StatusCode\":\"Complete\",\"Description\":\"Succesfully launched '${instance_id}'\",\"Event\":\"cfncluster:COMPUTE_READY\",\"EC2InstanceId\":\"'${instance_id}'\",\"Slots\":\"'${cfn_instance_slots}'\"'${target_partition_field_str}''${head_node_field_str}'}"}'
 
 # signal compute ready
 touch /etc/compute_ready_signalled
