@@ -4,12 +4,20 @@
 
 # Query instance metadata
 instance_id_url="http://169.254.169.254/latest/meta-data/instance-id"
+hostname_url="http://169.254.169.254/latest/meta-data/local-hostname"
 availability_zone_url="http://169.254.169.254/latest/meta-data/placement/availability-zone/"
 
 instance_id=$(curl --retry 3 --retry-delay 0 --silent --fail ${instance_id_url})
 availability_zone=$(curl --retry 3 --retry-delay 0 --silent --fail ${availability_zone_url})
+hostname_full=$(curl --retry 3 --retry-delay 0 --silent --fail ${hostname_url})
+
+# see https://stackoverflow.com/questions/918886/how-do-i-split-a-string-on-a-delimiter-in-bash
+hostname=(${hostname_full//./ })
 
 echo "detected instance_id: ${instance_id}"
+echo "detected hostname_full: ${hostname_full}"
+echo "detected hostname: ${hostname}"
+
 
 # Check for information concerning which partition we want this instance to be put into
 if [ -f "/etc/corgi_target_partition.cfg" ]; then
@@ -30,7 +38,7 @@ else
     head_node_field_str=''
 fi
 
-aws --region ${cfn_region} sqs send-message --queue-url ${cfn_sqs_queue} --message-body '{"Type" : "Notification", "Message" : "{\"StatusCode\":\"Complete\",\"Description\":\"Succesfully launched '${instance_id}'\",\"Event\":\"cfncluster:COMPUTE_READY\",\"EC2InstanceId\":\"'${instance_id}'\",\"Slots\":\"'${cfn_instance_slots}'\"'${target_partition_field_str}''${head_node_field_str}'}"}'
+aws --region ${cfn_region} sqs send-message --queue-url ${cfn_sqs_queue} --message-body '{"Type" : "Notification", "Message" : "{\"StatusCode\":\"Complete\",\"Description\":\"Succesfully launched '${instance_id}'\",\"Event\":\"cfncluster:COMPUTE_READY\",\"EC2InstanceId\":\"'${instance_id}'\",\"Hostname\":\"'${hostname}'\",\"Slots\":\"'${cfn_instance_slots}'\"'${target_partition_field_str}''${head_node_field_str}'}"}'
 
 # signal compute ready
 touch /etc/compute_ready_signalled
